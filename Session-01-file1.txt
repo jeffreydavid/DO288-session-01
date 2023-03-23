@@ -20,4 +20,9 @@ https://github.com/cprakash2118/repo01
 $ oc get is -n openshift | grep nodejs 
 $ oc get istag -n openshift | grep nodejs
 
+# To download the image from RedHat portal.
+RedHat container image registry - registry.redhat.io 
+https://catalog.redhat.com/software/containers/search?q=ubi
+
+
  oc new-app --name palenstine  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
