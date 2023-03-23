@@ -1,0 +1,12 @@
+
+
+Fork below repository:-
+https://github.com/RedHatTraining/DO288-apps
+
+Then git clone to student's home directory
+git clone httpd://github.com/cprakash2118/DO288-apps
+
+lab-config 
+
+
+ oc new-app --name palenstine  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
