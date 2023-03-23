@@ -1,0 +1,41 @@
+    1  exit
+    2  lab cat /usr/lhistory
+    3  history
+    4  cat /usr/share/bash-completion/completions/lab 
+    5  cat ~/.bashrc 
+    6  helm version
+    7  vi ~/.bashrc
+    8  ssh lab@utility
+    9  exit
+   10  lab --refresh
+   11  exit
+   12  exit
+   13  exit
+   14  exit
+   15  lab-configure
+   16  hostname -s
+   17  hostname -d
+   18  hostname -f
+   19  ssh utility -l root
+   20  oc login -u kubeadmin -p FiEEy-KTgYd-rWZ6p-d4p89 https://api.ocp4.example.com:6443
+   21  oc whoami 
+   22  oc login -u developer -p developer 
+   23  oc get nodes
+   24  oc login -u kubeadmin -p FiEEy-KTgYd-rWZ6p-d4p89 https://api.ocp4.example.com:6443
+   25  oc whoami 
+   26  oc get nodes
+   27  oc get clusterversion 
+   28  oc debug master/host
+   29  oc debug master01/host
+   30  oc debug host/master01 
+   31  oc debug node/master01 
+   32  cat /etc/redhat-release 
+   33  oc debug node/master01 
+   34  oc whoami 
+   35  oc whoami -t 
+   36  oc whoami --show-console 
+   37  cat kubeadmin-password 
+   38  history 
+   39  nslookup google.com
+   40  git clone https://github.com/cprakash2118/DO288-session-01
+   41  history > DO288-session-01/history-session-01.txt
