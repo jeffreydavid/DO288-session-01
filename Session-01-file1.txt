@@ -47,6 +47,34 @@ Note: Below command is an example of deploying application using registry and SC
 
  oc new-app --name myapp01  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
  
+ or
+ 
+ oc new-app --name myapp01 -i nodejs:16-ubi8   https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+ 
+ or 
+ 
+ 
+  oc new-app --name myapp01 --image-stream nodejs:16-ubi8   https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+  
+ 
+ oc new-app --name myapp02 quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+ or 
+ oc new-app --name myapp02 --docker-image quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+  
+  
+ oc new-app --as-deployment-config --name hello -i httpd --code http://github.com/cprakash2118/web
+ 
+ 
+ 
+ 
+ 
+  
+  
+  
+ 
+ 
+ 
+ 
  
  
  
