@@ -24,11 +24,32 @@ $ oc get istag -n openshift | grep nodejs
 RedHat container image registry - registry.redhat.io 
 https://catalog.redhat.com/software/containers/search?q=ubi
 
+
+$ oc new-app --name myapp01  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+
+$ oc get pods 
+$ oc logs -f bc/myapp01 
+Note: Error - Need code correction.
+
 $ git clone https://github.com/cprakash2118/repo01
 $ cd repo01 
 $ python  -m  json.tool  package.json
+$ vim package.json 
+$ git add .
+$ git commit -m "Update"
+$ git push 
+$ oc start-build myapp01 
+$ oc get pods 
+$ oc logs -f bc/myapp01 
+
+
+Note: Below command is an example of deploying application using registry and SCM (github.com).
 
  oc new-app --name myapp01  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+ 
+ 
+ 
+ 
  
  
  
