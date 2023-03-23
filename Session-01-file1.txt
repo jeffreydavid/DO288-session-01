@@ -12,7 +12,12 @@ lab-config
 #####
 Example of appliaction deployment using SCM (github) 
 
+Fork below repository:-
 https://github.com/cprakash2118/repo01
 
+
+# Check the image in openshift internal registry.
+$ oc get is -n openshift | grep nodejs 
+$ oc get istag -n openshift | grep nodejs
 
  oc new-app --name palenstine  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
