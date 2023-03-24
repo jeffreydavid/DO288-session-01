@@ -254,7 +254,7 @@ $ oc secrets link builder quay-registry
 $ oc import-image myimage openshift/httpd --from=default-route-openshift-image-repositry.apps.ocp4.example.com/openshift/httpd --confirm
 
 $ mkdir work11 ; cd work11 
-$ git clone https://github.com/repo02 
+$ git clone https://github.com/cprakash2118/repo02 
 $ cd repo02 
 $ DO modification on s2I 
 
