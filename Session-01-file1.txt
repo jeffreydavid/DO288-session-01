@@ -172,6 +172,12 @@ https://catalog.redhat.com/software/containers/ubi8/ubi/5c359854d70cc534b3a3784e
 Example:
 ###################
 
+$ podman pull quay.io/redhattraining/php-hello-dockerfile
+$ podman images
+$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/<your_quay+ID)redhattraining-php-hello-dockerfile
+$ podman push quay.io/<your_quay+ID)redhattraining-php-hello-dockerfile
+
+
 podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile
 podman login quay.io
 podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile 
