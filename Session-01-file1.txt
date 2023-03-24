@@ -251,7 +251,7 @@ $ cat ${XDG_RUNTIME_DIR}/containers/auth.json
 $ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
 $ oc secrets link builder quay-registry
 
-$ oc import-image myimage openshift/httpd --from=default-route-openshift-image-repositry.apps.ocp4.example.com/openshift/httpd --confirm
+$ oc import-image myimage openshift/httpd --from=default-route-openshift-image-registry.apps.ocp4.example.com/openshift/httpd:2.4 --confirm
 
 $ mkdir work11 ; cd work11 
 $ git clone https://github.com/cprakash2118/repo02 
