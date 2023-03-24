@@ -56,6 +56,7 @@ Note: Below command is an example of deploying application using registry and SC
  
   oc new-app --name myapp01 --image-stream nodejs:16-ubi8   https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
   
+ ##############
  
  oc new-app --name myapp02 quay.io/cprakash2118/ubi8-apache-java-unzip-image01
  or 
@@ -63,6 +64,96 @@ Note: Below command is an example of deploying application using registry and SC
   
   
  oc new-app --as-deployment-config --name hello -i httpd --code http://github.com/cprakash2118/web
+ 
+#################################
+Session-02 (day-02):-
+Recap:-
+
+### Deploy applications on OCP cluster:-
+1) new-app 
+2) template 
+
+1) new-app approche 
+
+#type-01 
+Note: Build application outside OCP cluster (3rd party provides build as image) and directly using image we can deploy application.
+
+$ oc new-project project01
+$ oc get all 
+$ oc new-app --name myapp01 quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+or
+$ oc new-app --name myapp01 --docker-image quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+
+
+#Type-02 
+Note: Build application within the OCP cluster and deploy also in same OCP cluster.
+$ oc new-project project02 
+$ oc get all 
+$ oc new-app --name myapp02 --as-deployment-config -i httpd https://github.com/cprakash2118/web 
+
+Note: Here image (Apache image - httpd enabled, web application is simple html based app "index.html").
+
+
+****
+--as-deployment-config
+--image-stream
+--context-dir 
+
+Consider your complete product/application (DO288-apps).
+fork the DO288-apps from https://github.com/RedHatTraining/DO288-apps
+
+#################
+$git clone https://github.com/RedHatTraining/DO288-apps
+$ cd DO288-apps
+$ git branch (main/master)
+$ git checkout master/main   (It's realdy updated or it will update few data).
+$ git checkout -b project-01-ubi-sleep 
+$ git branch 
+* project-01-ubi-sleep
+  main
+* git push -u origin project-01-ubi-sleep  
+username:
+password: 
+$ pwd
+<path>/DO288-apps/
+$ ls -ld ubi-sleep 
+NOte: --- Modify the component (ubi-sleep)
+ - Date - 24-March-2023 
+ - then git commit 
+ - then git push 
+ 
+  oc new-app --name echo-build11 --as-deployment-config   https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#docker-build11 --context-dir ubi-sleep
+
+
+Once this is done 
+mkdir /home/student/work02 
+$ git clone https://github.com/cprakash2118/DO288-apps
+$ cd DO288-apps
+$ oc new-app --name echo-build11-main --as-deployment-config   https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#docker-build11 --context-dir ubi-sleep
+
+This application different and over application different.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
  
  
  
