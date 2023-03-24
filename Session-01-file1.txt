@@ -174,21 +174,31 @@ Example:
 
 $ podman pull quay.io/redhattraining/php-hello-dockerfile
 $ podman images
-$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/<your_quay+ID)redhattraining-php-hello-dockerfile
-$ podman push quay.io/<your_quay+ID)/redhattraining-php-hello-dockerfile
+$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/<your_quayID>/redhattraining-php-hello-dockerfile
+$ podman push quay.io/<your_quayID>/redhattraining-php-hello-dockerfile
 
-
-podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+Example: quayID = cprakash2118
+$ podman pull quay.io/redhattraining/php-hello-dockerfile
+$ podman images
+$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+$ podman push quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+  Note: It will not work, as required credentials.
+  
 podman login quay.io
-podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile 
-podman images
+podman push quay.io/cprakash2118/redhattraining-php-hello-dockerfile 
+podman logout 
 
-HOw to do the same for OCP cluster.
 
-oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+###
+How to do the same for OCP cluster.
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
 
 Above command will not work ? (Because credentils issue)
-podman login quay.io 
+
+$ podman login quay.io 
 user_name:
 passwd: 
 
