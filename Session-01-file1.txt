@@ -207,20 +207,58 @@ $ cat ${XDG_RUNTIME_DIR}/containers/auth.json
 $ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
 $ oc secrets link builder quay-registry
 
-$ oc import-image cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+
+$ oc get is 
+$ oc get istag 
+
+## NOw deploying the application using image (download from Private registry)
+NOte: 1st Create secret then link secret_name to builder serviceAccount then use "oc import-image" and tag your image from private registry.
+
+
+Case-01 (Only image based application deployment)
+$ oc new-app --name  web-app01  myimage
+
+
+Case-02 (Application deployment using image and code repo)
+oc new-app --name web-app02 --as-deployment-config -i myimage https://github.com/cprakash2118/web 
+or
+oc new-app --name web-app02 --as-deployment-config myimage~https://github.com/cprakash2118/web
+
+
 
 
 ############
+S2I -
+https://github.com/cprakash2118/repo02
 
+Fork this repo.
 
+#### Deploying application via S2I 
+Image - 
+$ oc new-project s2i-project-demo 
+$ oc get route -n openshift-image-registry
+# INternal OpenSHift registry 
+$ oc whoami 
+Admin:kube (Use = kubeadmin)
+$ oc whoami -t 
+$ podman login <route_output_of_above_command> 
+User:
+pass: 
+$ oc get is -n openshift | grep httpd 
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
 
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
 
+$ oc import-image myimage openshift/httpd --from=default-route-openshift-image-repositry.apps.ocp4.example.com/openshift/httpd --confirm
 
+$ mkdir work11 ; cd work11 
+$ git clone https://github.com/repo02 
+$ cd repo02 
+$ DO modification on s2I 
 
-
-
-
-
+$ oc new-app --name deployment-01 myimage~https://github.com/cprakash2118/repo02
 
 
 
