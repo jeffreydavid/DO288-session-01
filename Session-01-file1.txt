@@ -153,6 +153,53 @@ $ oc get is
 $ oc get is -n openshift | grep php 
 $ oc get istag -n openshift | grep php 
 
+############################
+Designing Containerized Applications for OpenShift
+
+Image 
+Dockerfile 
+Source2Image (S2I)
+
+S2I and Dockerfile/Conatinerfile 
+
+UBI example 
+https://catalog.redhat.com/software/containers/search?q=UBI
+https://catalog.redhat.com/software/containers/ubi8/ubi/5c359854d70cc534b3a3784e
+
+
+
+
+Example:
+###################
+
+podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+podman login quay.io
+podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile 
+podman images
+
+HOw to do the same for OCP cluster.
+
+oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+
+Above command will not work ? (Because credentils issue)
+podman login quay.io 
+user_name:
+passwd: 
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
+
+$ oc import-image cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+
+
+############
+
+
+
+
+
 
 
 
