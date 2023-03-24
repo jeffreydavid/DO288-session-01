@@ -135,6 +135,31 @@ This application different and over application different.
 
 
 
+###########
+To get the OCP cluster web console 
+$ oc whoami --show-console 
+
+$ oc get route -n openshift-console 
+
+Check logs and events about he pod/deployment/deployment-config & buildConfig 
+
+$ oc logs <pod_name>
+$ oc logs -f bc/bc_name 
+$ oc get all
+$ oc get svc 
+$ oc get dc 
+$ oc get bc 
+$ oc get is 
+$ oc get is -n openshift | grep php 
+$ oc get istag -n openshift | grep php 
+
+
+
+
+
+
+
+
 
 
 
