@@ -258,7 +258,7 @@ $ git clone https://github.com/cprakash2118/repo02
 $ cd repo02 
 $ DO modification on s2I 
 
-$ oc new-app --name deployment-01 myimage~https://github.com/cprakash2118/repo02
+$ oc new-app --name repo02-app --as-deployment-config myimage~https://github.com/cprakash2118/repo02
 
 
 
