@@ -175,7 +175,7 @@ Example:
 $ podman pull quay.io/redhattraining/php-hello-dockerfile
 $ podman images
 $ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/<your_quay+ID)redhattraining-php-hello-dockerfile
-$ podman push quay.io/<your_quay+ID)redhattraining-php-hello-dockerfile
+$ podman push quay.io/<your_quay+ID)/redhattraining-php-hello-dockerfile
 
 
 podman pull quay.io/cprakash2118/redhattraining-php-hello-dockerfile
