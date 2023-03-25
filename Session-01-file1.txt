@@ -378,13 +378,94 @@ https://access.redhat.com/documentation/en-us/openshift_container_platform/4.10
 Unit-02,GE-01 
 Building Container Images with Advanced Containerfile Instructions
 
+ lab container-build start
+ source /usr/local/etc/ocp4.config
+ cd DO288-apps
+ git checkout main
+ git checkout -b container-build
+  git push -u origin container-build
+  
+  oc new-project ${RHT_OCP4_DEV_USER}-container-build
+
+cd ~/DO288-apps/conatiner-build/
+podman build --layers=false -t do288-apache ./container-build
+podman images
+ podman tag do288-apache  quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+ podman login quay.io -u ${RHT_OCP4_QUAY_USER}
+ 
+  podman push --format v2s1 quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+- Log into Quay.io [https://quay.io] and make the new image public
+- Deploy the Apache HTTP Server child image
+oc new-app --name hola quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+oc get pods
+oc logs pod<tab>
+
+
+Because OpenShift runs containers using a random userid, ports below 1024 are
+privileged and can only be run as root.
+The random userid used by OpenShift to run the container does not have permissions
+to read and write log files in /var/log/httpd (the default log file location for the
+Apache HTTP Server on RHEL 7)
 
 
 
+NOw delete all and recommit the COntainerfile 
+
+oc delete all -l app=hola
+
+vim COntainerfile 
+
+EXPOSE 8080
+LABEL io.openshift.expose-services="8080:http"
+LABEL io.k8s.description="A basic Apache HTTP Server child image, uses ONBUILD" \
+ io.k8s.display-name="Apache HTTP Server" \
+ io.openshift.expose-services="8080:http" \
+ io.openshift.tags="apache, httpd"
+ 
+ RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
+RUN sed -i "s/#ServerName www.example.com:80/ServerName 0.0.0.0:8080/g"  /etc/httpd/conf/httpd.conf
+
+RUN chgrp -R 0 /var/log/httpd /var/run/httpd && \
+    chmod -R g=u /var/log/httpd /var/run/httpd
+
+USER 1001
+
+git commit -a -m "Changed the Containerfile to enable running as a random uid on OpenShift"
+
+podman rmi -a --force
+
+podman build --layers=false -t do288-apache ./container-build
+
+
+ podman tag do288-apache quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+ podman push --format v2s1 quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+
+oc new-app --name hola quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+###########
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
+
+$ oc import-image myimage cprakash2118/do288-apache  --from=quay.io/cprakash2118/do288-apache --reference-policy local --confirm
+
+$ oc new-app --name hola-02 -i myimage
+############
+
+$ oc get is 
+$ oc get istag 
 
 
 
+oc import-image myimage cprakash2118/do288-apache --reference-policy local --from=quay.io/cprakash2118/do288-apache --confirm
 
+
+
+oc expose --port='8080' svc/hola
 
 
 
