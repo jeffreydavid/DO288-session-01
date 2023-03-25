@@ -207,7 +207,7 @@ $ cat ${XDG_RUNTIME_DIR}/containers/auth.json
 $ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
 $ oc secrets link builder quay-registry
 
-$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --reference-policy local --confirm
 
 $ oc get is 
 $ oc get istag 
@@ -261,6 +261,122 @@ $ DO modification on s2I
 $ oc new-app --name repo02-app --as-deployment-config myimage~https://github.com/cprakash2118/repo02
 
 
+######################
+Recap
+
+###
+Unit-01,GE-01 
+Configuring the Classroom Environment
+
+Must be having account on "github.com" & "quay.io".
+$ lab-configure 
+Provide your github account:
+Provide your quay account:
+
+Script provides and update in the file "/usr/local/etc/ocp4.config"
+OCP_Cluster_MASTER_API_URL:
+OCP_Cluster_User_Account:developer 
+OCP_Cluster_User's_password:developer
+OCP_NEXUS_SERVER:
+OCP_MYSQL_SERVER: 
+
+Once your "lab-configure" script completed then cat the file "/usr/local/etc/ocp4.config".
+
+Fork below repository:-
+https://github.com/RedHatTraining/DO288-apps
+
+and git clone the same repo once it's available on your profile (few sec it takes to fork from original repo).
+$ mkdir work ; cd work
+$ source  /usr/local/etc/ocp4.config
+$ git clone https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps
+$ cd DO288-apps 
+$ git branch 
+* main 
+
+NOte: 
+- Login to your "github.com" and "quay.io" accounts.
+- W.R.T github.com account, please generate token (From developer's account)
+- Refer more details
+  Appendix A
+  Appendix B
+  Appendix C 
+  
+ 
+
+
+###
+Unit-01,GE-02 
+Deploying an Application to an OpenShift Cluster
+lab docker-build start
+Reference point - Deploy application using "--as-deployment-config , imageStream (is), --context-dir "
+oc new-app --name echo  https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#docker-build --context-dir ubi-echo
+
+NOte: Branch name - #docker-build
+
+ 
+
+###
+Unit-01,GE-03
+Managing an Application with the Web Console
+
+$ oc whoami --show-console 
+developer/developer
+admin/redhat 
+
+$ ssh root@utility 
+$ cd /home/lab/ocp4/auth/
+$ scp -r kube* student@workstation:/home/student/
+Password: student 
+$ exit
+$ pwd
+/home/student 
+$ cat kubeadmin-password 
+$ cat kubeconfig | grep server 
+Note: OCP cluster master API URL.
+
+$ oc get nodes --kubeconfig /home/student/kubeconfig 
+$ export KUBECONFIG=/home/student/kubeconfig 
+$ oc whoami ; oc get nodes 
+$ env | grep KUBECONFIG
+$ unset KUBECONFIG  (This will remove KUBECONFIG variable the user will not be able to use oc API).
+
+###
+Unit-01,GE-04
+Managing an Application with the CLI
+
+note: After deploying applications, user/admin can verify using logs and events 
+
+$ oc get pods 
+$ oc get svc or oc get service  
+
+$ oc get dc or oc get deploymentconfig 
+$ oc get deployment 
+NOte: *** 
+- Either dc or deployment (Not both)
+- ALl changes to pod via deploying or dc only.
+  Deployment used then "replicaSet" resource will be used to manage the pods.
+  DeploymentConfig used then "replication controller" resource will be used to manage the pods.
+  dc will sycn with bc and provide you simple/custom CI/CD.
+  CI part handled by BuildCOnfig 
+  CD part handled by DeploymentConfig
+  
+  
+$ oc logs -f bc/bc_name (GIves your build time logs)
+$ oc logs pod_name (build pod name - It will be in "completed" state).
+
+$ oc get events (Incase if pods are going in pending state).
+
+
+
+##
+Unit-01,LE-01 
+Deploying and Managing Applications on an OpenShift Cluster
+
+##################################
+https://access.redhat.com/documentation/en-us/openshift_container_platform/4.10
+###
+Unit-02,GE-01 
+Building Container Images with Advanced Containerfile Instructions
 
 
 
