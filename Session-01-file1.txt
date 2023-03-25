@@ -467,8 +467,37 @@ oc import-image myimage cprakash2118/do288-apache --reference-policy local --fro
 
 oc expose --port='8080' svc/hola
 
+################
+Unit2-GE02
+Injecting Configuration Data into an Application
+
+git checkout -b app-config
 
 
+ oc new-project ${RHT_OCP4_DEV_USER}-app-config
+ 
+ oc new-app --name myapp --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs nodejs:16-ubi8~https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#app-config --context-dir app-config
+
+
+
+ oc create configmap myappconf --from-literal APP_MSG="Test Message"
+ 
+ oc create secret generic myappfilesec --from-file /home/student/DO288-apps/app-config/myapp.sec
+
+
+###################
+quay.io 
+registry.redhat.io --> catalog.redhat.com  
+registry.access.redhat.com --> catalog.redhat.com  
+
+
+Unit-03-G1 
+
+UNIT-03-GE2
+ oc patch config.imageregistry cluster -n openshift-image-registry --type merge -p '{"spec":{"defaultRoute":true}}'
+
+
+ oc patch config.imageregistry cluster -n openshift-image-registry --type merge -p '{"spec":{"defaultRoute":false}}'
 
 
 
