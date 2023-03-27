@@ -498,6 +498,168 @@ UNIT-03-GE2
 
 
  oc patch config.imageregistry cluster -n openshift-image-registry --type merge -p '{"spec":{"defaultRoute":false}}'
+ 
+####################################
+Part 1-
+  user1-5   (sre_team - sre_team_identity_provider, sre_team_secret)
+  user6-10  (devops_team - devops_team_identity_provider, devops_team_secret)
+  user11-30 (application-01_team - application-01_team_identity_provide, application-01_team_secret)
+  user31-50 (application-02_team - application-02_team_identity_provider, application-02_team_secret)
+  user51-70 (application-03_team - application-03_team_identity_provider, application-03_team_secret)
+  
+Part 2-
+  groups:-
+  sre_team_grp   - user1-5
+  devops_team_grp  - user6-10 
+  application-01_team_grp - user11-30
+  application-02_team_grp - user31-50
+  application-03_team_grp - user51-71
+
+Part 3-  
+  Setup and implement RBAC 
+  1) Assigned "cluster-admin" role to sre_team_grp
+  2) Delete kubeadmin account (delete kube:admin secret) - kube-system (namespace) 
+  3) self-provisioner remove from groups (system-authenticated-oauth)
+     NOte: By default all users part of this group (system-authenticated-oauth)
+  4) Assign "self-provisioner" to "devops_team_grp" 
+  5) Assigned "cluster-admin" role to user6 and user10 
+  6) Project creation.
+  
+Part 4-  
+  sre_team_project                 (cluster-admin) 
+  devops_team_project              (self-provisioner
+  application-01_team_project      (user11/12/13 - project admin, user14-25 - Edit, user26-30 View)
+  application-02_team_project      (user31/32/33 - project admin, user34-45 - Edit, user46-50 View)
+  application-03_team_project      (user51/52/53 - project admin, user54-65 - Edit, user66-70 View)
+  
+
+Part 5- Deploy application as per below details.
+
+    Project name = application-01_team_project     
+	Application Name mysql 
+	Image used: registry.redhat.io/rhel8/mysql-80:1
+	Environemnt variables as  (MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, MYSQL_HOSTNAME)
+	user=myuser      
+	password=redhat123 
+	database=test_secrets 
+	hostname=mysql
+	
+	HInt : --prefix MYSQL_ - use when deploying secret.
+	
+	Application Name: quote
+	IMage used : quay.io/redhattraining/famous-quotes:2.1 
+	Samilar environment as mysql 
+
+Part 6) 
+
+6.1)
+Managing network communication from a pod to a service.
+ application-01_team_project 
+ pod 1 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ pod 2 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ pod 3 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ Create route (insecure route) and check load balancing.
+=============================
+6.2)
+Managing communication between containers that run in the same project.
+
+ - Deny policy 
+ - Allow to specific 
+ 
+ application-02_team_project 
+ pod 1 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ pod 2 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ 
+
+
+6.3)
+ Managing communication between pods, whether they belong to a same project or run in separate projects.
+ - Deny policy 
+ - Allow to specific 
+ 
+application-02_team_project 
+ pod 1 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ pod 2 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+ 
+application-03_team_project 
+ pod 3 - quay.io/cprakash2118/april-java-unzip-httpd-image-02
+
+
+6.4)
+ Managing network communication from an external network to a service, or from containers to external networks.
+ 
+ route_project 
+ Deploy application and setup on route (edge).
+  quay.io/cprakash2118/april-java-unzip-httpd-image-02
+
+ Deploy application and setup on route (passthrogh).
+  quay.io/cprakash2118/april-java-unzip-httpd-image-02
+  
+   Deploy application and setup on route (Re-encryption).
+  quay.io/cprakash2118/april-java-unzip-httpd-image-02
+  
+
+Part 7) 
+Apply taint (NoSchduler action) on master01/02 
+Apply label (env=prod) on project-03 and master03 
+
+Application Name mysql 
+	Image used: registry.redhat.io/rhel8/mysql-80:1
+	Environemnt variables as  (MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, MYSQL_HOSTNAME)
+	user=myuser      
+	password=redhat123 
+	database=test_secrets 
+	hostname=mysql
+	
+	HInt : --prefix MYSQL_ - use when deploying secret.
+	
+	Application Name: quote
+	IMage used : quay.io/redhattraining/famous-quotes:2.1 
+	Samilar environment as mysql 
+	
+
+Part 8) 
+application-01_team_project  
+- Set quota "quota-01" (pod=10,service=3,secret=10,CPU=2core,Memory=2Gi)
+- Set limit (cpu-max=400m,min=100m | memoery-max=400Mi,min=100Mi, Defult-Request CPU=150m,Memory=150Mi)
+
+Application Name mysql 
+	Image used: registry.redhat.io/rhel8/mysql-80:1
+	Environemnt variables as  (MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, MYSQL_HOSTNAME)
+	user=myuser      
+	password=redhat123 
+	database=test_secrets 
+	hostname=mysql
+	
+	HInt : --prefix MYSQL_ - use when deploying secret.
+	
+	Application Name: quote
+	IMage used : quay.io/redhattraining/famous-quotes:2.1 
+	Samilar environment as mysql 
+	
+  - Verify RBAC 
+
+application-02_team_project  - 
+- Set quota "quota-02" (pod=6,service=3,secret=10,CPU=1core,Memory=2Gi)
+- Set limit (cpu-max=300m,min=100m | memoery-max=400Mi,min=100Mi)
+
+
+Application Name mysql 
+	Image used: registry.redhat.io/rhel8/mysql-80:1
+	Environemnt variables as  (MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE, MYSQL_HOSTNAME)
+	user=myuser      
+	password=redhat123 
+	database=test_secrets 
+	hostname=mysql
+	
+	HInt : --prefix MYSQL_ - use when deploying secret.
+	
+	Application Name: quote
+	IMage used : quay.io/redhattraining/famous-quotes:2.1 
+	Samilar environment as mysql 
+	
+  - Verify RBAC 
+  ================
 
 
 
