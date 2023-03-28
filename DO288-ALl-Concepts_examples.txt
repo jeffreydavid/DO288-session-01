@@ -1,0 +1,667 @@
+
+
+*******************************************************************************************
+#########################
+Case-00
+#########################
+
+Configuring the Classroom Environment
+
+Must be having account on "github.com" & "quay.io".
+$ lab-configure 
+Provide your github account:
+Provide your quay account:
+
+Script provides and update in the file "/usr/local/etc/ocp4.config"
+OCP_Cluster_MASTER_API_URL:
+OCP_Cluster_User_Account:developer 
+OCP_Cluster_User's_password:developer
+OCP_NEXUS_SERVER:
+OCP_MYSQL_SERVER: 
+
+Once your "lab-configure" script completed then cat the file "/usr/local/etc/ocp4.config".
+
+Fork below repository:-
+https://github.com/RedHatTraining/DO288-apps
+
+and git clone the same repo once it's available on your profile (few sec it takes to fork from original repo).
+$ mkdir work ; cd work
+$ source  /usr/local/etc/ocp4.config
+$ git clone https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps
+$ cd DO288-apps 
+$ git branch 
+* main 
+
+NOte: 
+- Login to your "github.com" and "quay.io" accounts.
+- W.R.T github.com account, please generate token (From developer's account)
+- Refer more details
+  Appendix A
+  Appendix B
+  Appendix C 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-01
+#########################
+
+Deploying application from image directly, including "secret" or "configmap" concepts.
+
+##Creating project/namespace as below.
+$ oc new-project project-01-mysql-quotes-app 
+
+##Creating Secret with a name "mysql" and passing important variable which are required to run the mysql DB.
+$ oc create secret generic mysql --from-literal user=myuser --from-literal password=redhat123 --from-literal database=test_secrets --from-literal hostname=mysql
+ 
+## Now deploy database, it must be failed as required runtime values as a arguments.
+$ oc new-app --name mysql --image registry.redhat.io/rhel8/mysql-80:1
+ 
+## Now deploy the secret and mysql pod will be in running mode.
+$ oc set env deployment/mysql --from secret/mysql --prefix MYSQL_
+
+## You can mount the secret to a volume.
+$ oc set volume deployment/mysql --add --type secret --mount-path /run/secrets/mysql --secret-name mysql
+ 
+## NOw delpoying application which will connect to our database.
+$ oc new-app --name quotes --image quay.io/redhattraining/famous-quotes:2.1
+
+## Again it failed, as it required few arguments to start and connect DB.
+$ oc set env deployment/quotes --from secret/mysql --prefix QUOTES_
+
+## Get your pods 
+$ oc get pods
+
+## Access the application "quotes" from outside OCP cluster.
+$ oc expose svc quotes 
+$ oc get route 
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-02
+#########################
+. Open internal registry to outside of cluster
+
+- it should be accessible to outside of openshift cluster ( create route )
+- privileges are already given for this task
+- once it is exposed with podman command you should be able to pull an image from a specific project.
+
+
+$ oc patch configs.imageregistry.operator.openshift.io/cluster --type merge -p   '{"spec":{"defaultRoute":true}}'
+$
+
+$ oc get route -n  openshift-image-registry
+
+#
+# podman login -u ocpdevop -p `oc whoami -t` <registry_route_name>
+# podman pull <registry_route_name>/<project_name>/<image_name> --tls-verify=false
+# podman images (check the images)
+
+
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-03
+#########################
+
+Fork below repository:-
+https://github.com/RedHatTraining/DO288-apps
+
+Then git clone to student's home directory
+git clone httpd://github.com/${RHT_OCP4_QUAY_USER}/DO288-apps
+
+Example- Using "cprakash2118" github account.
+git clone httpd://github.com/cprakash2118/DO288-apps
+
+lab-config 
+
+
+#####
+Example of appliaction deployment using SCM (github) 
+
+Fork below repository:-
+https://github.com/cprakash2118/repo01
+
+
+# Check the image in openshift internal registry.
+$ oc get is -n openshift | grep nodejs 
+$ oc get istag -n openshift | grep nodejs
+
+# To download the image from RedHat portal.
+RedHat container image registry - registry.redhat.io 
+https://catalog.redhat.com/software/containers/search?q=ubi
+
+
+$ oc new-app --name myapp01  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+
+$ oc get pods 
+$ oc logs -f bc/myapp01 
+Note: Error - Need code correction.
+
+$ git clone https://github.com/cprakash2118/repo01
+$ cd repo01 
+$ python  -m  json.tool  package.json
+$ vim package.json 
+$ git add .
+$ git commit -m "Update"
+$ git push 
+$ oc start-build myapp01 
+$ oc get pods 
+$ oc logs -f bc/myapp01 
+
+
+Note: Below command is an example of deploying application using registry and SCM (github.com).
+
+$ oc new-app --name myapp01  nodejs:16-ubi8~https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+ 
+or
+ 
+$ oc new-app --name myapp01 -i nodejs:16-ubi8   https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+ 
+or 
+
+$ oc new-app --name myapp01 --image-stream nodejs:16-ubi8   https://github.com/cprakash2118/repo01 --as-deployment-config --build-env npm_config_registry=http://${RHT_OCP4_NEXUS_SERVER}/repository/nodejs
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+*******************************************************************************************
+#########################
+Case-04
+#########################
+Deploy applications on OCP cluster:-
+1) new-app 
+2) template 
+
+1) new-app approche 
+
+#type-01 
+Note: Build application outside OCP cluster (3rd party provides build as image) and directly using image we can deploy application.
+
+$ oc new-project project01
+$ oc get all 
+$ oc new-app --name myapp01 quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+or
+$ oc new-app --name myapp01 --docker-image quay.io/cprakash2118/ubi8-apache-java-unzip-image01
+
+
+#Type-02 
+Note: Build application within the OCP cluster and deploy also in same OCP cluster.
+$ oc new-project project02 
+$ oc get all 
+$ oc new-app --name myapp02 --as-deployment-config -i httpd https://github.com/cprakash2118/web 
+
+Note: Here image (Apache image - httpd enabled, web application is simple html based app "index.html").
+
+
+****
+--as-deployment-config
+--image-stream
+--context-dir 
+
+Consider your complete product/application (DO288-apps).
+fork the DO288-apps from https://github.com/RedHatTraining/DO288-apps
+
+****
+$git clone https://github.com/RedHatTraining/DO288-apps
+$ cd DO288-apps
+$ git branch (main/master)
+$ git checkout master/main   (It's realdy updated or it will update few data).
+$ git checkout -b project-01-ubi-sleep 
+$ git branch 
+* project-01-ubi-sleep
+  main
+* git push -u origin project-01-ubi-sleep  
+username:
+password: 
+$ pwd
+<path>/DO288-apps/
+$ ls -ld ubi-sleep 
+NOte: --- Modify the component (ubi-sleep)
+ - Date - 24-March-2023 
+ - then git commit 
+ - then git push 
+ 
+  oc new-app --name echo-build11 --as-deployment-config   https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#docker-build11 --context-dir ubi-sleep
+
+
+Once this is done 
+mkdir /home/student/work02 
+$ git clone https://github.com/cprakash2118/DO288-apps
+$ cd DO288-apps
+$ oc new-app --name echo-build11-main --as-deployment-config   https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps#docker-build11 --context-dir ubi-sleep
+
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-05
+#########################
+Designing Containerized Applications for OpenShift
+
+Image 
+Dockerfile 
+Source2Image (S2I)
+
+S2I and Dockerfile/Conatinerfile 
+
+UBI example 
+https://catalog.redhat.com/software/containers/search?q=UBI
+https://catalog.redhat.com/software/containers/ubi8/ubi/5c359854d70cc534b3a3784e
+
+Example:
+************
+
+$ podman pull quay.io/redhattraining/php-hello-dockerfile
+$ podman images
+$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/<your_quayID>/redhattraining-php-hello-dockerfile
+$ podman push quay.io/<your_quayID>/redhattraining-php-hello-dockerfile
+
+Example: quayID = cprakash2118
+$ podman pull quay.io/redhattraining/php-hello-dockerfile
+$ podman images
+$ podman tag quay.io/redhattraining/php-hello-dockerfile quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+$ podman push quay.io/cprakash2118/redhattraining-php-hello-dockerfile
+  Note: It will not work, as required credentials.
+  
+podman login quay.io
+podman push quay.io/cprakash2118/redhattraining-php-hello-dockerfile 
+podman logout 
+
+
+###
+How to do the same for OCP cluster.
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --confirm
+
+Above command will not work ? (Because credentils issue)
+
+$ podman login quay.io 
+user_name:
+passwd: 
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
+
+$ oc import-image myimage cprakash2118/redhattraining-php-hello-dockerfile --from=quay.io/cprakash2118/redhattraining-php-hello-dockerfile --reference-policy local --confirm
+
+$ oc get is 
+$ oc get istag 
+
+## NOw deploying the application using image (download from Private registry)
+NOte: 1st Create secret then link secret_name to builder serviceAccount then use "oc import-image" and tag your image from private registry.
+
+
+Point-01 (Only image based application deployment)
+$ oc new-app --name  web-app01  myimage
+
+
+Point-02 (Application deployment using image and code repo)
+
+oc new-app --name web-app02 --as-deployment-config -i myimage https://github.com/cprakash2118/web 
+or
+oc new-app --name web-app02 --as-deployment-config myimage~https://github.com/cprakash2118/web
+
+
+***************
+S2I -
+https://github.com/cprakash2118/repo02
+
+Fork this repo.
+
+#### Deploying application via S2I 
+Image - 
+$ oc new-project s2i-project-demo 
+$ oc get route -n openshift-image-registry
+# INternal OpenSHift registry 
+$ oc whoami 
+Admin:kube (Use = kubeadmin)
+$ oc whoami -t 
+$ podman login <route_output_of_above_command> 
+User:
+pass: 
+$ oc get is -n openshift | grep httpd 
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
+
+$ oc import-image myimage openshift/httpd --from=default-route-openshift-image-registry.apps.ocp4.example.com/openshift/httpd:2.4 --confirm
+
+$ mkdir work11 ; cd work11 
+$ git clone https://github.com/cprakash2118/repo02 
+$ cd repo02 
+$ DO modification on s2I 
+
+$ oc new-app --name repo02-app --as-deployment-config myimage~https://github.com/cprakash2118/repo02
+
+$  oc get svc 
+$ oc expose svc service_name 
+$ oc get route 
+$ curl http://route_url
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-06
+#########################
+Building Container Images with Advanced Containerfile Instructions
+
+ lab container-build start
+ source /usr/local/etc/ocp4.config
+ cd DO288-apps
+ git checkout main
+ git checkout -b container-build
+  git push -u origin container-build
+  
+  oc new-project ${RHT_OCP4_DEV_USER}-container-build
+
+cd ~/DO288-apps/conatiner-build/
+podman build --layers=false -t do288-apache ./container-build
+podman images
+ podman tag do288-apache  quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+ podman login quay.io -u ${RHT_OCP4_QUAY_USER}
+ 
+  podman push --format v2s1 quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+- Log into Quay.io [https://quay.io] and make the new image public
+- Deploy the Apache HTTP Server child image
+oc new-app --name hola quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+oc get pods
+oc logs pod<tab>
+
+
+Because OpenShift runs containers using a random userid, ports below 1024 are
+privileged and can only be run as root.
+The random userid used by OpenShift to run the container does not have permissions
+to read and write log files in /var/log/httpd (the default log file location for the
+Apache HTTP Server on RHEL 7)
+
+
+
+NOw delete all and recommit the COntainerfile 
+
+oc delete all -l app=hola
+
+vim COntainerfile 
+
+EXPOSE 8080
+LABEL io.openshift.expose-services="8080:http"
+LABEL io.k8s.description="A basic Apache HTTP Server child image, uses ONBUILD" \
+ io.k8s.display-name="Apache HTTP Server" \
+ io.openshift.expose-services="8080:http" \
+ io.openshift.tags="apache, httpd"
+ 
+ RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
+RUN sed -i "s/#ServerName www.example.com:80/ServerName 0.0.0.0:8080/g"  /etc/httpd/conf/httpd.conf
+
+RUN chgrp -R 0 /var/log/httpd /var/run/httpd && \
+    chmod -R g=u /var/log/httpd /var/run/httpd
+
+USER 1001
+
+git commit -a -m "Changed the Containerfile to enable running as a random uid on OpenShift"
+
+podman rmi -a --force
+
+podman build --layers=false -t do288-apache ./container-build
+
+
+ podman tag do288-apache quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+ podman push --format v2s1 quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+
+
+oc new-app --name hola quay.io/${RHT_OCP4_QUAY_USER}/do288-apache
+********
+
+$ cat ${XDG_RUNTIME_DIR}/containers/auth.json
+
+$ oc create secret generic quay-registry --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json --type kubernetes.io/dockerconfigjson
+$ oc secrets link builder quay-registry
+
+$ oc import-image myimage cprakash2118/do288-apache  --from=quay.io/cprakash2118/do288-apache --reference-policy local --confirm
+
+$ oc new-app --name hola-02 -i myimage
+********
+
+$ oc get is 
+$ oc get istag 
+
+
+
+oc import-image myimage cprakash2118/do288-apache --reference-policy local --from=quay.io/cprakash2118/do288-apache --confirm
+
+
+
+oc expose --port='8080' svc/hola
+
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-07
+#########################
+S2I customization example (Step by Steps):-
+
+lab apache-s2i start (Creating this dir - ~/DO288/lab/apache-s2i).
+- ~/DO288/lab/apache-s2i/Containerfile
+- ~/DO288/lab/apache-s2i/s2i 
+
+Step 1) 
+$ s2i create s2i-base-image-httpd s2i-base-image-httpd 
+$ ls -ld s2i-base-image-httpd
+$ tree s2i-base-image-httpd
+
+Note: modification on Containerfile and your customization (w.r.t s2i directory also).
+$ cp -rpv ~/DO288/labs/apache-s2i/Containerfile s2i-base-image-httpd/
+$ cp -rv ~/DO288/labs/apache-s2i/s2i s2i-base-image-httpd/
+$ mv ~/s2i-base-image-httpd/s2i/bin/save-artifacts /tmp/
+
+
+Step2) 
+podman build 
+
+$ cd ~/s2i-base-image-httpd
+$ podman build -t s2i-base-image-httpd .
+$ podman images 
+$ cat ~/s2i-base-image-httpd/test/test-app/index.html 
+
+$ mkdir /home/student/s2i-sample-app/
+$ pwd
+/home/student/s2i-base-image-httpd
+
+$ cp ~/DO288/labs/apache-s2i/index.html  ~/s2i-base-image-httpd/test/test-app/
+
+s2i build test/test-app/ s2i-base-image-httpd s2i-sample-app --as-dockerfile=/home/student/s2i-sample-app/Containerfile
+
+NOte: This file "~/s2i-sample-app/Containerfile" will be generated as per changes done "s2i-base-image-httpd" and then s2i deployed as per sample image "s2i-sample-app"
+
+$ cd
+$ pwd
+/home/student 
+$ tree s2i-sample-app
+$ tree s2i-base-image-httpd
+
+$ cd /home/student/s2i-sample-app/
+$ podman build -t s2i-sample-app .
+$ podman images 
+
+Note: New image "s2i-sample-app" having parent image "s2i-base-image-httpd".
+
+$ podman run -d --name test -u 1234 -p 8080:8080 localhost/s2i-sample-app
+$ ps 
+$ curl http://localhost:8080
+
+
+###
+Push this images and implement the same on OCP cluster.
+$ source /usr/local/etc/ocp4.config
+
+$ podman login -u ${RHT_OCP4_QUAY_USER} quay.io
+
+$ podman images
+
+$ skopeo copy --format v2s1 containers-storage:localhost/s2i-base-image-httpd docker://quay.io/${RHT_OCP4_QUAY_USER}/s2i-do288-httpd
+
+
+$ oc login -u ${RHT_OCP4_DEV_USER} -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+ 
+$ oc new-project ${RHT_OCP4_DEV_USER}-apache-s2i
+
+$ oc create secret generic quayio --from-file .dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json  --type=kubernetes.io/dockerconfigjson
+
+$ oc secrets link builder quayio
+
+$ oc import-image s2i-do288-httpd --from quay.io/${RHT_OCP4_QUAY_USER}/s2i-do288-httpd --confirm
+
+$ oc get is 
+
+$ oc new-app --name hello-s2i s2i-do288-httpd~https://github.com/${RHT_OCP4_GITHUB_USER}/DO288-apps --context-dir=html-helloworld
+
+$  oc logs -f bc/hello-s2i
+
+$ oc get route 
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-08
+#########################
+Helm 
+
+lab multicontainer-helm start
+cd ~/DO288/labs/multicontainer-helm
+$ helm create famouschart
+$ cd famouschart
+$ tree 
+
+All changes has been done 
+https://github.com/cprakash2118/helm-example
+$ tree helm-example
+$ mv helm-example/multicontainer-helm/famouschart/charts/mariadb-11.0.13.tgz /tmp
+$ cd helm-example/multicontainer-helm/famouschart
+$ helm dependency update
+
+Login as developer 
+$ oc whoami 
+$ oc new-project ${RHT_OCP4_DEV_USER}-multicontainer-helm
+$ helm install famousapp .
+$ oc get pods
+$ oc get svc 
+$ oc description svc 
+$ oc get deployment
+$ oc get route 
+$  oc expose service famousapp-famouschart
+$ oc get route 
+$ curl http://<route_name>
+
+
+
+
+
+
+*******************************************************************************************
+#########################
+Case-09
+#########################
+Kustomize concepts:-
+
+Kustomize separates these configuration sets into two types: base and overlays
+An example of a Kustomize layout could be:
+myapp
+├── base
+└── overlays
+ ├── production
+ └── staging
+
+Customizing Deployments with Kustomize
+ lab multicontainer-kustomize start
+
+$  cd ~/DO288/labs/multicontainer-kustomize
+$ mkdir famous-kustomize ; cd famous-kustomize
+$  mkdir base
+$ cp ../famous-quotes.yaml base/deployment.yaml
+
+Login as developer 
+$oc new-project ${RHT_OCP4_DEV_USER}-multicontainer-kustomize
+oc apply -k base
+oc get deployments
+
+oc expose service famousapp-famouschart
+
+Create the Development environment definition.
+ - Now Create the development overlay in the Kustomize folder.
+
+$ mkdir -p overlays/dev
+
+$  oc apply -k overlays/dev
+
